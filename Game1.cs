@@ -62,6 +62,21 @@ namespace _3_Over
             foreach (var s in cards)
                 allCards.Add(s);
 
+            //suit screen card rectangles vvv
+            for (int i = 267; i < 813; i+= 150)
+                suitCardRects.Add(new Rectangle(i, 200, 96, 150));
+
+            //rank screen card rectangles vvv
+            for (int i = 267; i < 813; i += 150)
+                rankCardRects.Add(new Rectangle(i, 200, 96, 150)); // row 1 (4)
+            for (int i = 192; i < 888; i += 150)
+                rankCardRects.Add(new Rectangle(i, 300, 96, 150)); // row 2 (5)
+            for (int i = 267; i < 813; i += 150)
+                rankCardRects.Add(new Rectangle(i, 400, 96, 150)); // row 3 (4)
+
+            //flip screen card rectangles vvv
+
+
         }
 
         protected override void LoadContent()
@@ -134,7 +149,8 @@ namespace _3_Over
 
             if (screen == Screen.suitScreen)
             {
-
+                foreach (Rectangle card in suitCardRects)
+                    _spriteBatch.Draw(cardTextures[0], card, Color.White);
             }
 
             if (screen == Screen.rankScreen)
