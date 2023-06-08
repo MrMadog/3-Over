@@ -9,6 +9,8 @@ namespace _3_Over
 {
     public class Game1 : Game
     {
+        Random generator = new Random();
+
         List<Texture2D> cardTextures;
         List<string> allCards;
         List<Rectangle> suitCardRects;
@@ -17,7 +19,16 @@ namespace _3_Over
         List<int> randomCards;
 
         SpriteFont testFont;
+
         Texture2D cardSpritesheet;
+
+        Vector2 mousePos;
+
+        bool done = false;
+
+        int suitIndex, rankIndex;
+
+        string userCard;
 
         enum Screen
         {
@@ -61,6 +72,8 @@ namespace _3_Over
 
             foreach (var s in cards)
                 allCards.Add(s);
+
+            userCard = "";
 
             //suit screen card rectangles vvv
             for (int i = 267; i < 813; i+= 150)
@@ -116,16 +129,42 @@ namespace _3_Over
             mouseState = Mouse.GetState();
             keyboardState = Keyboard.GetState();
 
-
+            mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             if (screen == Screen.suitScreen)
             {
+                for (int i = 0; i < 4; i++)
+                    if (suitCardRects[i].Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        suitIndex = i;
+                        done = true;
+                    }
 
+                if (done)
+                    if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
+                    {
+                        done = false;
+                        screen = Screen.rankScreen;
+                    }
             }
 
             if (screen == Screen.rankScreen)
             {
-
+                for (int i = 0; i < 13; i++)
+                    if (rankCardRects[i].Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        rankIndex = i;
+                        for (int j = 0; j < 3; j++)
+                            randomCards[j] = generator.Next(allCards.Count);
+                        done = true;
+                    }
+                
+                if (done)
+                    if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
+                    {
+                        done = false;
+                        screen = Screen.rankScreen;
+                    }
             }
 
             if (screen == Screen.flipScreen)
@@ -151,16 +190,22 @@ namespace _3_Over
             {
                 foreach (Rectangle card in suitCardRects)
                     _spriteBatch.Draw(cardTextures[0], card, Color.White);
+
+                _spriteBatch.DrawString(testFont, suitIndex.ToString(), new Vector2(200, 400), Color.White);
             }
 
             if (screen == Screen.rankScreen)
             {
+                foreach (Rectangle card in rankCardRects)
+                    _spriteBatch.Draw(cardTextures[0], card, Color.White);
+
+                _spriteBatch.DrawString(testFont, rankIndex.ToString(), new Vector2(200, 50), Color.White);
 
             }
 
             if (screen == Screen.flipScreen)
             {
-
+                _spriteBatch.DrawString(testFont, randomCards, new Vector2(200, 50), Color.White);
             }
 
             if (screen == Screen.pointScreen)
