@@ -39,3 +39,10 @@
 /processorParam:TextureFormat=Compressed
 /build:TestFont2.spritefont
 
+#begin testFont3.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:testFont3.spritefont
+
