@@ -18,17 +18,20 @@ namespace _3_Over
         List<Rectangle> flipCardRects;
         List<int> randomCards;
 
-        SpriteFont testFont;
+        SpriteFont testFont, testFont2;
 
         Texture2D cardSpritesheet;
 
         Vector2 mousePos;
 
         bool done = false;
+        bool rightCard = false;
+        bool flipBool = false;
+        bool done1 = false;
 
-        int suitIndex, rankIndex;
+        int suitIndex, rankIndex, rank, points = 0, cardIndex, suitScreenIndex, rankScreenIndex;
 
-        string userCard;
+        string userCard, suit;
 
         enum Screen
         {
@@ -98,6 +101,7 @@ namespace _3_Over
 
             cardSpritesheet = Content.Load<Texture2D>("card_deck");
             testFont = Content.Load<SpriteFont>("testFont");
+            testFont2 = Content.Load<SpriteFont>("TestFont2");
 
 
 
@@ -140,6 +144,14 @@ namespace _3_Over
                         done = true;
                     }
 
+                switch (suitIndex)
+                {
+                    case 0: suit = "clubs"; break;
+                    case 1: suit = "diamonds"; break;
+                    case 2: suit = "hearts"; break;
+                    case 3: suit = "spades"; break;
+                }
+
                 if (done)
                     if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
                     {
@@ -151,25 +163,67 @@ namespace _3_Over
             if (screen == Screen.rankScreen)
             {
                 for (int i = 0; i < 13; i++)
-                    if (rankCardRects[i].Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    if (rankCardRects[i].Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                     {
                         rankIndex = i;
-                        for (int j = 0; j < 3; j++)
-                            randomCards[j] = generator.Next(allCards.Count);
+                        rank = rankIndex + 1;
+                        userCard = $"{suit} {rank}";
                         done = true;
                     }
-                
+
+
                 if (done)
                     if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
                     {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            cardIndex = generator.Next(0, 52);
+                            if (randomCards.Contains(cardIndex))
+                            {
+                                do
+                                {
+                                    cardIndex = generator.Next(0, 52);
+                                } while (randomCards.Contains(cardIndex));
+                            }
+                            randomCards.Add(cardIndex);
+                        }
                         done = false;
-                        screen = Screen.rankScreen;
+                        screen = Screen.flipScreen;
                     }
             }
 
             if (screen == Screen.flipScreen)
             {
+                if (keyboardState.IsKeyDown(Keys.Enter) && prevKeyboardState.IsKeyUp(Keys.Enter) && done == false)
+                {
+                    flipBool = true;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (allCards[randomCards[i]].Contains(userCard))
+                        {
+                            points += 10;
+                            rightCard = true;
+                        }
 
+                        else if (allCards[randomCards[i]].Contains(rank.ToString()) && rightCard == false)
+                        {
+                            points += 3;
+                        }
+
+                        else if (allCards[randomCards[i]].Contains(suit) && rightCard == false)
+                        {
+                            points += 1;
+                        }
+                    }
+                    done = true;
+                }
+
+                if (done)
+                    if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
+                    {
+                        done = false;
+                        screen = Screen.pointScreen;
+                    }
             }
 
             if (screen == Screen.pointScreen)
@@ -188,29 +242,54 @@ namespace _3_Over
 
             if (screen == Screen.suitScreen)
             {
+                _spriteBatch.DrawString(testFont2, "Choose a Suit", new Vector2(100, 50), Color.White);
+
+                suitScreenIndex = 0;
                 foreach (Rectangle card in suitCardRects)
-                    _spriteBatch.Draw(cardTextures[0], card, Color.White);
+                {
+                    _spriteBatch.Draw(cardTextures[suitScreenIndex], card, Color.White);
+                    suitScreenIndex += 13;
+                }   
 
                 _spriteBatch.DrawString(testFont, suitIndex.ToString(), new Vector2(200, 400), Color.White);
             }
 
             if (screen == Screen.rankScreen)
             {
+                rankScreenIndex = suitIndex * 13;
                 foreach (Rectangle card in rankCardRects)
-                    _spriteBatch.Draw(cardTextures[0], card, Color.White);
+                {
+                    _spriteBatch.Draw(cardTextures[rankScreenIndex], card, Color.White);
+                    rankScreenIndex += 1;
+                }
 
                 _spriteBatch.DrawString(testFont, rankIndex.ToString(), new Vector2(200, 50), Color.White);
-
+                _spriteBatch.DrawString(testFont, userCard, new Vector2(300, 100), Color.White);
             }
 
             if (screen == Screen.flipScreen)
             {
-                _spriteBatch.DrawString(testFont, randomCards, new Vector2(200, 50), Color.White);
+                for (int i = 0; i < 3; i++) 
+                    _spriteBatch.DrawString(testFont, randomCards[i].ToString(), new Vector2(i * 50 + 50, 50), Color.White);
+
+                if (flipBool == false)
+                    for (int i = 200; i < 500; i += 100)
+                        _spriteBatch.Draw(cardTextures[54], new Rectangle(i, 200, 96, 150), Color.White);
+
+                if (flipBool)
+                {
+                    _spriteBatch.Draw(cardTextures[randomCards[0]], new Rectangle(200, 200, 96, 150), Color.White);
+                    _spriteBatch.Draw(cardTextures[randomCards[1]], new Rectangle(300, 200, 96, 150), Color.White);
+                    _spriteBatch.Draw(cardTextures[randomCards[2]], new Rectangle(400, 200, 96, 150), Color.White);
+                }
+
+                _spriteBatch.DrawString(testFont, userCard, new Vector2(300, 100), Color.White);
+
             }
 
             if (screen == Screen.pointScreen)
             {
-
+                _spriteBatch.DrawString(testFont, $"Points: {points}", new Vector2(100, 50), Color.White);
             }
 
             _spriteBatch.End();
