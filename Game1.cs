@@ -21,9 +21,12 @@ namespace _3_Over
         List<int> rightRankIndex;
         List<int> rightCardIndex;
 
-        SpriteFont testFont, testFont2, testFont3;
+        SpriteFont testFont, testFont2, testFont3, testFont4, titleFont;
 
         Texture2D cardSpritesheet;
+        Texture2D threeCardLogo;
+
+        Rectangle logoRect;
 
         Vector2 mousePos;
 
@@ -41,7 +44,7 @@ namespace _3_Over
 
         enum Screen
         {
-            suitScreen, rankScreen, flipScreen, pointScreen
+            menuScreen, suitScreen, rankScreen, flipScreen, pointScreen
         }
 
         Screen screen;
@@ -62,8 +65,8 @@ namespace _3_Over
 
         protected override void Initialize()
         {
-            _graphics.PreferredBackBufferWidth = 1080;
-            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
             _graphics.ApplyChanges();
 
             cardTextures = new List<Texture2D>();
@@ -76,7 +79,9 @@ namespace _3_Over
             rightRankIndex = new List<int>();
             rightSuitIndex = new List<int>();
 
-            screen = Screen.suitScreen;
+            logoRect = new Rectangle(710, 300, 500, 300);
+
+            screen = Screen.menuScreen;
 
             base.Initialize();
 
@@ -87,18 +92,18 @@ namespace _3_Over
 
             userCard = "";
 
-            for (int i = 267; i < 813; i+= 150)
-                suitCardRects.Add(new Rectangle(i, 300, 96, 150));
+            for (int i = 634; i < 1287; i+= 175)
+                suitCardRects.Add(new Rectangle(i, 400, 128, 200));
 
-            for (int i = 267; i < 813; i += 150)
-                rankCardRects.Add(new Rectangle(i, 200, 96, 150)); // row 1 (4)
-            for (int i = 192; i < 888; i += 150)
-                rankCardRects.Add(new Rectangle(i, 300, 96, 150)); // row 2 (5)
-            for (int i = 267; i < 813; i += 150)
-                rankCardRects.Add(new Rectangle(i, 400, 96, 150)); // row 3 (4)
+            for (int i = 634; i < 1287; i += 175)
+                rankCardRects.Add(new Rectangle(i, 300, 128, 200)); // row 1 (4)
+            for (int i = 546; i < 1378; i += 175)
+                rankCardRects.Add(new Rectangle(i, 450, 128, 200)); // row 2 (5)
+            for (int i = 634; i < 1287; i += 175)
+                rankCardRects.Add(new Rectangle(i, 600, 128, 200)); // row 3 (4)
 
-            for (int i = 342; i < 738; i += 150)
-                flipCardRects.Add(new Rectangle(i, 300, 96, 150));
+            for (int i = 721; i < 1199; i += 175)
+                flipCardRects.Add(new Rectangle(i, 400, 128, 200));
 
         }
 
@@ -106,11 +111,13 @@ namespace _3_Over
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            cardSpritesheet = Content.Load<Texture2D>("card_deck");
+            cardSpritesheet = Content.Load<Texture2D>("card_deck_large");
             testFont = Content.Load<SpriteFont>("testFont");
             testFont2 = Content.Load<SpriteFont>("TestFont2");
             testFont3 = Content.Load<SpriteFont>("testFont3");
-
+            testFont4 = Content.Load<SpriteFont>("testFont4");
+            titleFont = Content.Load<SpriteFont>("titleFont");
+            threeCardLogo = Content.Load<Texture2D>("3CardsLogo");
 
 
             Texture2D cropTexture;
@@ -144,6 +151,12 @@ namespace _3_Over
             mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             seconds = (float)gameTime.TotalGameTime.TotalSeconds - startTime;
+
+            if (screen == Screen.menuScreen)
+            {
+                if (keyboardState.IsKeyDown(Keys.Space) && prevKeyboardState.IsKeyUp(Keys.Space))
+                    screen = Screen.suitScreen;
+            }
 
             if (screen == Screen.suitScreen)
             {
@@ -276,7 +289,7 @@ namespace _3_Over
                         rightSuitIndex.Clear();
                         rightCardIndex.Clear();
                         points = 0;
-                        screen = Screen.suitScreen;
+                        screen = Screen.menuScreen;
                     }
             }
 
@@ -288,6 +301,17 @@ namespace _3_Over
             GraphicsDevice.Clear(Color.DarkOliveGreen);
 
             _spriteBatch.Begin();
+
+            if (screen == Screen.menuScreen)
+            {
+                _spriteBatch.DrawString(titleFont, "3 Over", new Vector2(625, 65), Color.Black);
+
+                _spriteBatch.Draw(threeCardLogo, logoRect, Color.White);
+
+                _spriteBatch.DrawString(testFont3, "(Place your bet before starting)", new Vector2(765, 800), Color.White);
+
+                _spriteBatch.DrawString(testFont4, "Press SPACE to Begin", new Vector2(550, 850), Color.White);
+            }
 
             if (screen == Screen.suitScreen)
             {
@@ -302,8 +326,8 @@ namespace _3_Over
                 
                 if (done)
                 {
-                    _spriteBatch.DrawString(testFont, suit, new Vector2(100, 100), Color.White);
-                    _spriteBatch.DrawString(testFont2, "Press SPACE to Continue", new Vector2(260, 600), Color.White);
+                    _spriteBatch.DrawString(testFont, suit, new Vector2(100, 180), Color.White);
+                    _spriteBatch.DrawString(testFont4, "Press SPACE to Continue", new Vector2(480, 850), Color.White);
                 }
             }
 
@@ -318,12 +342,12 @@ namespace _3_Over
                     rankScreenIndex += 1;
                 }
 
-                _spriteBatch.DrawString(testFont, userCard, new Vector2(100, 100), Color.White);
+                _spriteBatch.DrawString(testFont, userCard, new Vector2(100, 180), Color.White);
 
                 if (done)
-                    _spriteBatch.DrawString(testFont2, "Press SPACE to Continue", new Vector2(260, 600), Color.White);
+                    _spriteBatch.DrawString(testFont4, "Press SPACE to Continue", new Vector2(480, 850), Color.White);
                 else
-                    _spriteBatch.DrawString(testFont, suit, new Vector2(100, 100), Color.White);
+                    _spriteBatch.DrawString(testFont, suit, new Vector2(100, 180), Color.White);
             }
 
             if (screen == Screen.flipScreen)
@@ -338,35 +362,35 @@ namespace _3_Over
                     for (int i = 0; i < 3; i++)
                         _spriteBatch.Draw(cardTextures[randomCards[i]], flipCardRects[i], Color.White);
 
-                _spriteBatch.DrawString(testFont, $"Your Card: {userCard}", new Vector2(100, 100), Color.White);
+                _spriteBatch.DrawString(testFont, $"Your Card: {userCard}", new Vector2(100, 180), Color.White);
 
                 if (flipBool)
-                    _spriteBatch.DrawString(testFont2, "Press SPACE to Continue", new Vector2(260, 600), Color.White);
+                    _spriteBatch.DrawString(testFont4, "Press SPACE to Continue", new Vector2(480, 850), Color.White);
 
                 if (rightSuit)
                     foreach (int rightCard in rightSuitIndex)
-                        _spriteBatch.DrawString(testFont3, "+1 pts", new Vector2(flipCardRects[rightCard].X, 250), Color.Black);
+                        _spriteBatch.DrawString(testFont3, "+1 pts", new Vector2(flipCardRects[rightCard].X + 30, 360), Color.Black);
 
                 if (rightRank)
                     foreach (int rightCard in rightRankIndex)
-                        _spriteBatch.DrawString(testFont3, "+3 pts", new Vector2(flipCardRects[rightCard].X, 250), Color.Black);
+                        _spriteBatch.DrawString(testFont3, "+3 pts", new Vector2(flipCardRects[rightCard].X + 30, 360), Color.Black);
 
                 if (rightCard)
                     foreach (int rightCard in rightCardIndex)
-                        _spriteBatch.DrawString(testFont3, "+10 pts", new Vector2(flipCardRects[rightCard].X, 250), Color.Black);
+                        _spriteBatch.DrawString(testFont3, "+10 pts", new Vector2(flipCardRects[rightCard].X + 30, 360), Color.Black);
             }
 
             if (screen == Screen.pointScreen)
             {
                 if (points >= 2 || points == 0)
-                    _spriteBatch.DrawString(testFont2, $"You Got: {points} Points!", new Vector2(325, 200), Color.White);
+                    _spriteBatch.DrawString(testFont2, $"You Got: {points} Points!", new Vector2(495, 200), Color.White);
                 else
-                    _spriteBatch.DrawString(testFont2, $"You Got: {points} Point!", new Vector2(325, 200), Color.White);
+                    _spriteBatch.DrawString(testFont2, $"You Got: {points} Point!", new Vector2(515, 200), Color.White);
 
-                _spriteBatch.DrawString(testFont, $"You Get {payout} Your Bet.", new Vector2(375, 350), Color.White);
+                _spriteBatch.DrawString(testFont, $"You Get {payout} Your Bet.", new Vector2(720, 350), Color.White);
 
                 if (done)
-                    _spriteBatch.DrawString(testFont2, "Press ENTER to Continue", new Vector2(260, 600), Color.White);
+                    _spriteBatch.DrawString(testFont4, "Press ENTER to Continue", new Vector2(495, 850), Color.White);
             }
 
             _spriteBatch.End();
