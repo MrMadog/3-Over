@@ -304,7 +304,7 @@ namespace _3_Over
 
             if (screen == Screen.menuScreen)
             {
-                _spriteBatch.DrawString(titleFont, "3 Over", new Vector2(625, 65), Color.Black);
+                _spriteBatch.DrawString(titleFont, "3Over", new Vector2(660, 65), Color.Black);
 
                 _spriteBatch.Draw(threeCardLogo, logoRect, Color.White);
 
